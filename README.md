@@ -17,7 +17,7 @@ Files included in this repository will help you build a 5-node Docker Enterprise
 **The templates and scripts provided will perform a fully automated deployment of the Docker Enterprise cluster, hence in-depth knowledge of Terraform or scripting is not required to perform the steps**
 
 
-## Get started
+## Steps to deploy the Docker Enterprise cluster on Azure
 
 1. Clone the repository to your local system
 2. Generate the SSH key pair files using `ssh-keygen -m PEM -f docker-key`
@@ -37,4 +37,21 @@ Files included in this repository will help you build a 5-node Docker Enterprise
 9. Note the hostnames and IP addresses shared at the end of execution as you will need this to access the environment
 
 
+## Access the Docker Enterprise cluster from your system
+
+1. To access the Docker UCP using a browser, go to <https://FQDN of the UCP host show in Terraform output:8070>
+   - Ignore the certificate related warning
+   - Login using the Docker admin credentials you mentioned in the `terraform.tfvars` file
+   - you should see 1 Swarm manager and 4 worker nodes in Ready status
+
+2. To access the Docker Trusted Registry (DTR), go to <https://FQDN of the UCP host show in Terraform output>
+    - DTR is also installed on the same host as UCP
+    - Once you login to DTR, turn on the setting `Create repository on push` by accessing `System > General > Repositories`. This will ensure repository is automatically created when you run `docker push`
+
+3. To use Docker and Kubernetes CLI, download the client bundle
+    - run the `client/download_client_bundle.sh` script
+    - give admin credentials, UCP FQDN and port numbers when prompted
+    - `source env.sh`
+    - `docker node ls` - will show all 5 servers (1 manager, 4 worker nodes)
+    - `kubectl get nodes` - will show 3 servers (excluding the Windows worker nodes which do not support Kubernetes)
 
