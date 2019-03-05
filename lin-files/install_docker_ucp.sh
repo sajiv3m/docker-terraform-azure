@@ -54,6 +54,7 @@ docker service create \
 --log-opt max-size=1m \
 --env IPCOUNT=32 \
 --name ipallocator \
+--constraint 'node.platform.os != windows' \
 docker4x/az-nic-ips:latest
 
 echo "Service created..."
