@@ -25,11 +25,18 @@ Files included in this repository will help you build a 5-node Docker Enterprise
 3. Update values in `terraform.tfvars` using the information from the following steps
    - Create Azure Service Principal to use with Terraform. If you don't have Azure CLI installed on your Laptop, execute the following the Cloud shell which you can access from the Azure portal
         > az login
+
         > az account list (to see your subscriptions)
+
         > az account set -s "name of the subscription you want to use"
+
         > subscription_id="copy the id of the subscription you want to use"
+
         > az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${SUBSCRIPTION_ID}"
+
         **Note the appID(CLIENT_ID), password(CLIENT_SECRET), tenant ID**
+
+        
     - Run `curl -s ifconfig.me` or goto [https://www.whatismyip.com](https://www.whatismyip.com) to note your public IP. This is the value for `MY_PUBLIC_IP`
     - Go to Docker Store and copy the License URL. This is the value for `DOCKER_EE_URL`
     - Generate the SSH key pair files using `ssh-keygen -m PEM -f docker-key`
