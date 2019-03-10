@@ -4,40 +4,49 @@
 ## Overview
 
 Files included in this repository will help you build a 5-node Docker Enterprise cluster
-1. One Linux server that hosts both Docker UCP and DTR. Same node will be configured as the Swarm Manager and Kubernetes Master
-2. Two Linux worker nodes in an availability set and accessed through a load balancer
-3. Two Windows worker nodes in an availability set and accessed through a load balancer
+1. One Linux server that hosts both Docker UCP and Docker Trusted Registry (DTR). Same node will also be configured as the Swarm Manager and Kubernetes Master
+2. Two Linux worker nodes in an availability set, which will be automatically joined as worker nodes to the Docker Swarm created by the UCP host
+3. Two Windows worker nodes in an availability set, which will be automatically joined as worker nodes to the Docker Swarm created by the UCP host
 
 ## Pre-requisites to deploy this infrastructure
 
-1. Azure subscription with access to create resources (free account will not work)
+1. Microsoft Azure account with access to create resources (free account will not work)
 2. Docker Enterprise licence - you can get a free trial licence from [Docker Store](https://hub.docker.com/editions/enterprise/docker-ee-trial) which is valid for 30 days
 3. Terraform v0.11, which you can download free from [HashiCorp site](https://www.terraform.io/downloads.html)
 
 **The templates and scripts provided will perform a fully automated deployment of the Docker Enterprise cluster. In-depth knowledge of Terraform or scripting is not required to perform the steps**
 
+**Steps given in the next section are to be performed from your Laptop running MacOS or Linux. If it is a Windows Laptop, please install [GitBash](https://gitforwindows.org/)**
 
 ## Steps to deploy the Docker Enterprise cluster on Azure
 
 1. Clone the repository to your local system
-2. Generate the SSH key pair files using `ssh-keygen -m PEM -f docker-key`
-3. Download Docker licence key file - `docker_subscription.lic` - from Docker store and copye the file to `lin-files` folder.
-4. Create Azure Service Principal to use with Terraform
-   - az login
-   - az account list (to see your subscriptions)
-   - az account set -s "name of the subscription you want to use"
-   - subscription_id="copy the id of the subscription you want to use"
-   - az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${SUBSCRIPTION_ID}"
-  
-    **Note the appID(CLIENT_ID), password(CLIENT_SECRET), tenant ID**
+2. Goto the folder where the files are saved
+3. Update values in `terraform.tfvars` using the information from the following steps
+   - Create Azure Service Principal to use with Terraform. If you don't have Azure CLI installed on your Laptop, execute the following the Cloud shell which you can access from the Azure portal
+        > az login
+        > az account list (to see your subscriptions)
+        > az account set -s "name of the subscription you want to use"
+        > subscription_id="copy the id of the subscription you want to use"
+        > az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${SUBSCRIPTION_ID}"
+        **Note the appID(CLIENT_ID), password(CLIENT_SECRET), tenant ID**
+    - Run `curl -s ifconfig.me` or goto [https://www.whatismyip.com](https://www.whatismyip.com) to note your public IP. This is the value for `MY_PUBLIC_IP`
+    - Go to Docker Store and copy the License URL. This is the value for `DOCKER_EE_URL`
+    - Generate the SSH key pair files using `ssh-keygen -m PEM -f docker-key`
 
 
-5. Update the variables in `terraform.tfvars` using the above information and as per your requirements
 
-6. Run `terraform init` to initialise Terraform and download the required plugins
-7. Run `terraform plan` to confirm there are no errors
-8. Run `terraform apply` to build the infrastructure on Azure. It will take approximately 20 to 30 minutes to complete
-9. Note the hostnames and IP addresses shared at the end of execution as you will need this to access the environment
+4. Download Docker licence key file - `docker_subscription.lic` - from Docker store and copy the file to `lin-files` folder. Existing empty `docker_subscription.lic` file can be replaced with your copy.
+
+5. Check `terraform` that you downloaded is in your PATH and that you have the latest version.
+    - execute `terraform version`. It should show `Terraform v0.11.11` or latest.
+6.  Execute the following Terraform commands to build the Docker cluster defined in the `.tf` files
+    - Run `terraform init` - this will initialize Terraform and download the required plugins
+    - Run `terraform plan` to confirm there are no errors
+    - Run `terraform apply` to build the infrastructure. It will take approximately 30 minutes to complete.
+
+
+**Note the hostnames and IP addresses shared at the end of execution as you will need this to access the environment**
 
 
 ## Access the Docker Enterprise cluster from your system
